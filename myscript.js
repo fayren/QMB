@@ -36,10 +36,9 @@ function processNode(node){
 		if(!node.url){
 		   if (node.title == 'Saved Tabs'){	
 			console.log("Saved Tabs folder exists!");
+			//Saving ourselves some heartburn by keeping track of whether or not we have the folder and what that folder id is
 			saveFolder = 1;
 			foldId = node.id;
-			console.log(saveFolder);
-			console.log(foldId);
 			}
 		}
 	}	
@@ -70,7 +69,7 @@ chrome.commands.onCommand.addListener(function(command) {
   }
   //open all saved tabs in a new window
   else if(command == 'win-recall') {
-    
+    // if the saved tabs folder is empty, throw an alert, otherwise, open the new window with the saved tabs
 	chrome.bookmarks.getChildren(foldId, function(check){
 		console.log(check);
 		if (check.length > 1){
@@ -80,9 +79,7 @@ chrome.commands.onCommand.addListener(function(command) {
 			alert('There are no saved tabs at this time!')
 		}
 	});
-	
-	
-	}
+  }
   //close the magic window and save all tabs 
   else if (command == 'win-dump') {
 	windowDump();
@@ -92,6 +89,7 @@ chrome.commands.onCommand.addListener(function(command) {
 //-------------------------------------------------------------
 //functions for shortcuts
 
+//Close and save the current tab.
 function cns(){
 	chrome.tabs.getSelected(null, function(tab){
 		console.log(tab);
@@ -107,8 +105,8 @@ function cns(){
     });
 };
 
+// Recall all your saved tabs and open them in a new window
 function windowRecall(){
-// need try catch; can't try to recall empty folder 
 	chrome.bookmarks.getChildren(foldId.toString(), function(sFolder){
 	
 		chrome.windows.create({}, function(window){
@@ -125,6 +123,7 @@ function windowRecall(){
 	});	
 };
 
+//Close the magic window and save all the tabs in it. 
 function windowDump(){
 	chrome.windows.get(winId, {populate: true}, function(winTabs){
 		winTabs.tabs.forEach(function(resave){
